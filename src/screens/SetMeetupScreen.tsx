@@ -1,56 +1,79 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, FlatList, Pressable } from 'react-native';
 import ScreenContainer from '../components/ScreenContainer';
+import Chip from '../components/Chip';
 import { colors, radii, spacing, typography } from '../theme/theme';
 import { upcomingShows } from '../data/mockData';
+import { useAppState } from '../state/AppState';
 
-// Screen Page 5 from SPRINT.md: Set meet up
-// - Calendar to set up/agree an in-person meet up first
-// - Calendar showing event dates of concerts
-// - Confirmation of meet up + confirmation of agreed event
+const DATE_OPTIONS = ['Sat 6pm', 'Sun 2pm', 'Fri 7pm', 'Tonight'];
+
 export default function SetMeetupScreen() {
-  const [confirmedIds, setConfirmedIds] = useState<Record<string, boolean>>({});
-
-  const toggleConfirm = (id: string) => {
-    setConfirmedIds((prev) => ({ ...prev, [id]: !prev[id] }));
-  };
+  const { meetups, setMeetup, matchedIds } = useAppState();
 
   return (
     <ScreenContainer scroll={false}>
       <Text style={typography.h1}>Set a meetup</Text>
       <Text style={[typography.bodyMuted, { marginTop: spacing.xs, marginBottom: spacing.md }]}>
-        Agree on an in-person meetup and confirm which shows you're going to together.
+        Pick a public first-meet time, then confirm the show you'll attend together.
       </Text>
 
       <View style={styles.safetyNote}>
         <Text style={typography.bodyMuted}>
-          🛡️ Safety first: meet in a public, pre-arranged spot for your first hangout.
+          🛡️ Safety first: meet in a public, pre-arranged spot for your first hangout. Buy your own ticket.
         </Text>
       </View>
 
       <FlatList
+        style={{ flex: 1 }}
         data={upcomingShows}
         keyExtractor={(e) => e.id}
         renderItem={({ item }) => {
-          const confirmed = !!confirmedIds[item.id];
+          const status = meetups[item.id];
           return (
             <View style={styles.card}>
-              <View style={{ flex: 1 }}>
-                <Text style={typography.h3}>{item.name}</Text>
-                <Text style={typography.bodyMuted}>{item.venue}</Text>
-                <Text style={typography.bodyMuted}>{item.date}</Text>
-                {item.attendingBuddies.length > 0 && (
-                  <Text style={styles.buddyText}>With {item.attendingBuddies.join(', ')}</Text>
-                )}
+              <Text style={typography.h3}>{item.name}</Text>
+              <Text style={typography.bodyMuted}>{item.venue}</Text>
+              <Text style={typography.bodyMuted}>{item.date}</Text>
+              {item.attendingBuddies.length > 0 && (
+                <Text style={styles.buddyText}>With {item.attendingBuddies.join(', ')}</Text>
+              )}
+
+              <Text style={[typography.label, { marginTop: spacing.md }]}>FIRST MEET TIME</Text>
+              <View style={styles.chipRow}>
+                {DATE_OPTIONS.map((option) => (
+                  <Chip
+                    key={option}
+                    label={option}
+                    selected={status?.meetupDate === option}
+                    onPress={() => setMeetup(item.id, { meetupDate: option })}
+                  />
+                ))}
               </View>
-              <Pressable
-                style={[styles.confirmButton, confirmed && styles.confirmButtonActive]}
-                onPress={() => toggleConfirm(item.id)}
-              >
-                <Text style={confirmed ? styles.confirmTextActive : styles.confirmText}>
-                  {confirmed ? 'Confirmed ✓' : 'Confirm'}
-                </Text>
-              </Pressable>
+
+              <View style={styles.actions}>
+                <Pressable
+                  accessibilityRole="button"
+                  style={[styles.confirmButton, status?.meetupConfirmed && styles.confirmButtonActive]}
+                  onPress={() => setMeetup(item.id, { meetupConfirmed: !status?.meetupConfirmed })}
+                >
+                  <Text style={status?.meetupConfirmed ? styles.confirmTextActive : styles.confirmText}>
+                    {status?.meetupConfirmed ? 'Meetup locked ✓' : 'Confirm meetup'}
+                  </Text>
+                </Pressable>
+                <Pressable
+                  accessibilityRole="button"
+                  style={[styles.confirmButton, status?.eventConfirmed && styles.confirmButtonActive]}
+                  onPress={() => setMeetup(item.id, { eventConfirmed: !status?.eventConfirmed })}
+                >
+                  <Text style={status?.eventConfirmed ? styles.confirmTextActive : styles.confirmText}>
+                    {status?.eventConfirmed ? 'Show locked ✓' : 'Confirm show'}
+                  </Text>
+                </Pressable>
+              </View>
+              {matchedIds.length === 0 && (
+                <Text style={styles.hint}>Match someone first so you have a buddy to meet.</Text>
+              )}
             </View>
           );
         }}
@@ -69,8 +92,6 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   card: {
-    flexDirection: 'row',
-    alignItems: 'center',
     backgroundColor: colors.surface,
     borderRadius: radii.md,
     padding: spacing.md,
@@ -79,14 +100,18 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   buddyText: { color: colors.primary, marginTop: spacing.xs, fontSize: 13, fontWeight: '600' },
+  chipRow: { flexDirection: 'row', flexWrap: 'wrap', marginTop: spacing.xs },
+  actions: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.sm },
   confirmButton: {
     borderWidth: 1,
     borderColor: colors.primary,
     borderRadius: radii.pill,
     paddingVertical: spacing.sm,
     paddingHorizontal: spacing.md,
+    cursor: 'pointer',
   },
   confirmButtonActive: { backgroundColor: colors.primary },
   confirmText: { color: colors.primary, fontWeight: '700' },
   confirmTextActive: { color: colors.background, fontWeight: '800' },
+  hint: { color: colors.textMuted, marginTop: spacing.sm, fontSize: 12 },
 });

@@ -1,24 +1,63 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable, StyleSheet, Switch } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { View, Text, TextInput, Pressable, StyleSheet, Switch, Image } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import ScreenContainer from '../components/ScreenContainer';
+import PrimaryButton from '../components/PrimaryButton';
 import { colors, radii, spacing, typography } from '../theme/theme';
+import { photoOptions } from '../data/mockData';
 import { RootStackParamList } from '../navigation/types';
+import { useAppState } from '../state/AppState';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ProfileBuilder'>;
 
-// Screen Page 2 from SPRINT.md: Profile Builder fields
 export default function ProfileBuilderScreen({ navigation }: Props) {
-  const [name, setName] = useState('');
-  const [age, setAge] = useState('');
-  const [preferredAgeRange, setPreferredAgeRange] = useState('');
-  const [location, setLocation] = useState('');
-  const [radius, setRadius] = useState('');
-  const [bio, setBio] = useState('');
-  const [drinks, setDrinks] = useState(false);
-  const [socialHandle, setSocialHandle] = useState('');
-  const [spotifyConnected, setSpotifyConnected] = useState(false);
-  const [shows, setShows] = useState('');
+  const { profile, saveProfile } = useAppState();
+  const [name, setName] = useState(profile?.name ?? '');
+  const [age, setAge] = useState(profile?.age ?? '');
+  const [preferredAgeRange, setPreferredAgeRange] = useState(profile?.preferredAgeRange ?? '21-29');
+  const [location, setLocation] = useState(profile?.location ?? '');
+  const [radius, setRadius] = useState(profile?.radius ?? '25');
+  const [bio, setBio] = useState(profile?.bio ?? '');
+  const [drinks, setDrinks] = useState(profile?.drinks ?? false);
+  const [socialHandle, setSocialHandle] = useState(profile?.socialHandle ?? '');
+  const [spotifyConnected, setSpotifyConnected] = useState(profile?.spotifyConnected ?? false);
+  const [shows, setShows] = useState(profile?.shows ?? (profile?.artistsEvents ?? []).join(', '));
+  const [photoUri, setPhotoUri] = useState(profile?.photoUri ?? '');
+  const [error, setError] = useState('');
+
+  const ageNumber = Number(age);
+  const canSave = useMemo(
+    () => name.trim().length > 1 && Number.isFinite(ageNumber) && ageNumber >= 18 && photoUri.length > 0 && bio.trim().length > 0,
+    [name, ageNumber, photoUri, bio]
+  );
+
+  const onSave = () => {
+    if (ageNumber < 18) {
+      setError('You must be 18+ to use Festie Bestie.');
+      return;
+    }
+    if (!canSave) {
+      setError('Add your name, age (18+), bio, and a photo to save.');
+      return;
+    }
+    saveProfile({
+      name: name.trim(),
+      age: String(ageNumber),
+      preferredAgeRange,
+      location,
+      radius,
+      bio: bio.trim(),
+      drinks,
+      socialHandle,
+      spotifyConnected,
+      shows,
+      photoUri,
+      genres: profile?.genres ?? [],
+      artistsEvents: profile?.artistsEvents ?? [],
+      vibes: profile?.vibes ?? [],
+    });
+    navigation.replace('Main');
+  };
 
   return (
     <ScreenContainer>
@@ -28,7 +67,7 @@ export default function ProfileBuilderScreen({ navigation }: Props) {
       </Text>
 
       <Field label="Profile name" value={name} onChangeText={setName} placeholder="Nova R. or a made-up name" />
-      <Field label="Your age" value={age} onChangeText={setAge} placeholder="e.g. 24" keyboardType="number-pad" />
+      <Field label="Your age (18+)" value={age} onChangeText={setAge} placeholder="e.g. 24" keyboardType="number-pad" />
       <Field label="Preferred match age range" value={preferredAgeRange} onChangeText={setPreferredAgeRange} placeholder="e.g. 21-28" />
       <Field label="Location + zip" value={location} onChangeText={setLocation} placeholder="Brooklyn, NY 11201" />
       <Field label="Travel radius for shows (miles)" value={radius} onChangeText={setRadius} placeholder="e.g. 25" keyboardType="number-pad" />
@@ -44,6 +83,7 @@ export default function ProfileBuilderScreen({ navigation }: Props) {
         <Text style={typography.label}>ALCOHOL PREFERENCE</Text>
         <Switch value={drinks} onValueChange={setDrinks} trackColor={{ true: colors.primary }} />
       </View>
+      <Text style={styles.toggleHint}>{drinks ? 'Drinks: Yes' : 'Drinks: No'}</Text>
 
       <Field label="Social media handle" value={socialHandle} onChangeText={setSocialHandle} placeholder="@yourhandle" />
 
@@ -51,16 +91,28 @@ export default function ProfileBuilderScreen({ navigation }: Props) {
         <Text style={typography.label}>CONNECT SPOTIFY</Text>
         <Switch value={spotifyConnected} onValueChange={setSpotifyConnected} trackColor={{ true: colors.primary }} />
       </View>
+      <Text style={styles.toggleHint}>{spotifyConnected ? 'Spotify connected' : 'Not connected yet'}</Text>
 
       <Field label="Upcoming shows / festivals" value={shows} onChangeText={setShows} placeholder="Coachella, Ultra..." />
 
-      <View style={styles.photoBox}>
-        <Text style={typography.bodyMuted}>+ Add at least 1 photo</Text>
+      <Text style={typography.label}>PHOTOS (TAP TO CHOOSE)</Text>
+      <View style={styles.photoRow}>
+        {photoOptions.map((uri) => (
+          <Pressable
+            key={uri}
+            accessibilityRole="button"
+            onPress={() => setPhotoUri(uri)}
+            style={[styles.photoChoice, photoUri === uri && styles.photoChoiceSelected]}
+          >
+            <Image source={{ uri }} style={styles.photo} />
+          </Pressable>
+        ))}
       </View>
+      {photoUri ? <Text style={styles.toggleHint}>Photo selected ✓</Text> : <Text style={styles.toggleHint}>Pick at least one photo.</Text>}
 
-      <Pressable style={styles.button} onPress={() => navigation.replace('Main')}>
-        <Text style={styles.buttonText}>Save profile</Text>
-      </Pressable>
+      {error ? <Text style={styles.error}>{error}</Text> : null}
+
+      <PrimaryButton label="Save profile" onPress={onSave} disabled={!canSave} style={{ marginTop: spacing.lg, marginBottom: spacing.xl }} />
     </ScreenContainer>
   );
 }
@@ -105,24 +157,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: spacing.md,
+    marginBottom: spacing.xs,
   },
-  photoBox: {
-    height: 100,
-    borderRadius: radii.md,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderStyle: 'dashed',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: spacing.lg,
-  },
-  button: {
-    backgroundColor: colors.primary,
+  toggleHint: { color: colors.textMuted, marginBottom: spacing.md, fontSize: 13 },
+  photoRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm, marginBottom: spacing.sm },
+  photoChoice: {
+    borderWidth: 2,
+    borderColor: 'transparent',
     borderRadius: radii.pill,
-    paddingVertical: spacing.md,
-    alignItems: 'center',
-    marginBottom: spacing.xl,
+    cursor: 'pointer',
   },
-  buttonText: { color: colors.background, fontWeight: '800', fontSize: 16 },
+  photoChoiceSelected: { borderColor: colors.primary },
+  photo: { width: 64, height: 64, borderRadius: radii.pill },
+  error: { color: colors.danger, marginTop: spacing.sm, fontWeight: '700' },
 });

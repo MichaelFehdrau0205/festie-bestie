@@ -11,8 +11,14 @@ type Props = {
 export default function Chip({ label, selected, onPress }: Props) {
   return (
     <Pressable
+      accessibilityRole="button"
+      accessibilityState={{ selected }}
       onPress={onPress}
-      style={[styles.chip, selected && styles.chipSelected]}
+      style={({ pressed }) => [
+        styles.chip,
+        selected && styles.chipSelected,
+        pressed && styles.pressed,
+      ]}
     >
       <Text style={[typography.body, selected && styles.textSelected]}>{label}</Text>
     </Pressable>
@@ -29,7 +35,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     marginRight: spacing.sm,
     marginBottom: spacing.sm,
+    cursor: 'pointer',
   },
+  pressed: { opacity: 0.8 },
   chipSelected: {
     backgroundColor: colors.chipBackground,
     borderColor: colors.primary,

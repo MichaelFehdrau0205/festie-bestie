@@ -1,18 +1,16 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import ScreenContainer from '../components/ScreenContainer';
 import Chip from '../components/Chip';
-import { colors, radii, spacing, typography } from '../theme/theme';
+import PrimaryButton from '../components/PrimaryButton';
+import { colors, spacing, typography } from '../theme/theme';
 import { genreOptions, artistEventOptions, vibeOptions } from '../data/mockData';
 import { RootStackParamList } from '../navigation/types';
+import { useAppState } from '../state/AppState';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Onboarding'>;
 
-// Screen Page 1 from SPRINT.md: Simple onboarding flow
-// Step 1: music genres (multi-select)
-// Step 2: artists + events (multi-select)
-// Step 3: vibe / aesthetic (multi-select)
 const STEPS = [
   { title: 'Pick your genres', subtitle: 'Select all the music genres you vibe with.', options: genreOptions },
   { title: 'Artists & events', subtitle: 'Who or what are you into or hoping to go to?', options: artistEventOptions },
@@ -20,11 +18,13 @@ const STEPS = [
 ];
 
 export default function OnboardingScreen({ navigation }: Props) {
+  const { setOnboarding } = useAppState();
   const [step, setStep] = useState(0);
   const [selections, setSelections] = useState<string[][]>([[], [], []]);
 
   const current = STEPS[step];
   const currentSelections = selections[step];
+  const isLastStep = step === STEPS.length - 1;
 
   const toggle = (option: string) => {
     setSelections((prev) => {
@@ -36,14 +36,13 @@ export default function OnboardingScreen({ navigation }: Props) {
     });
   };
 
-  const isLastStep = step === STEPS.length - 1;
-
   const handleNext = () => {
-    if (isLastStep) {
-      navigation.replace('ProfileBuilder');
-    } else {
+    if (!isLastStep) {
       setStep((s) => s + 1);
+      return;
     }
+    setOnboarding(selections[0], selections[1], selections[2]);
+    navigation.replace('ProfileBuilder');
   };
 
   return (
@@ -63,14 +62,25 @@ export default function OnboardingScreen({ navigation }: Props) {
         ))}
       </View>
 
+      {currentSelections.length === 0 && (
+        <Text style={styles.hint}>Tap at least one to continue.</Text>
+      )}
+
       <View style={styles.footer}>
-        <Pressable
-          style={[styles.button, currentSelections.length === 0 && styles.buttonDisabled]}
+        {step > 0 && (
+          <PrimaryButton
+            label="Back"
+            variant="ghost"
+            onPress={() => setStep((s) => s - 1)}
+            style={styles.backButton}
+          />
+        )}
+        <PrimaryButton
+          label={isLastStep ? "Let's go" : 'Next'}
           disabled={currentSelections.length === 0}
           onPress={handleNext}
-        >
-          <Text style={styles.buttonText}>{isLastStep ? "Let's go" : 'Next'}</Text>
-        </Pressable>
+          style={styles.nextButton}
+        />
       </View>
     </ScreenContainer>
   );
@@ -80,13 +90,8 @@ const styles = StyleSheet.create({
   title: { marginTop: spacing.md },
   subtitle: { marginTop: spacing.xs, marginBottom: spacing.lg },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap' },
-  footer: { marginTop: spacing.xl },
-  button: {
-    backgroundColor: colors.primary,
-    borderRadius: radii.pill,
-    paddingVertical: spacing.md,
-    alignItems: 'center',
-  },
-  buttonDisabled: { opacity: 0.4 },
-  buttonText: { color: colors.background, fontWeight: '800', fontSize: 16 },
+  hint: { color: colors.textMuted, marginTop: spacing.sm },
+  footer: { marginTop: spacing.xl, flexDirection: 'row', gap: spacing.sm },
+  backButton: { flex: 1 },
+  nextButton: { flex: 1 },
 });

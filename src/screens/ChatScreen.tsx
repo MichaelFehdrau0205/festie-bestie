@@ -1,63 +1,70 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TextInput, Pressable, Image } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { View, Text, StyleSheet, FlatList, TextInput, Pressable, Image, KeyboardAvoidingView, Platform } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import ScreenContainer from '../components/ScreenContainer';
 import { colors, radii, spacing, typography } from '../theme/theme';
-import { buddies, mockChat, ChatMessage } from '../data/mockData';
+import { buddies } from '../data/mockData';
 import { RootStackParamList } from '../navigation/types';
+import { useAppState } from '../state/AppState';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Chat'>;
 
-// Part of Screen Page 4 in SPRINT.md: Chat messaging + match confirmation (wristbands icon,
-// icebreaker to start the chat).
 export default function ChatScreen({ route }: Props) {
   const buddy = buddies.find((b) => b.id === route.params.buddyId) ?? buddies[0];
-  const [messages, setMessages] = useState<ChatMessage[]>(mockChat);
+  const { chats, sendMessage, likeBuddy, matchedIds } = useAppState();
   const [draft, setDraft] = useState('');
+  const confirmed = matchedIds.includes(buddy.id);
+  const messages = useMemo(() => chats[buddy.id] ?? [], [chats, buddy.id]);
 
   const send = () => {
     if (!draft.trim()) return;
-    setMessages((prev) => [
-      ...prev,
-      { id: `local-${Date.now()}`, fromSelf: true, text: draft.trim(), timestamp: 'Now' },
-    ]);
+    if (!confirmed) likeBuddy(buddy.id);
+    sendMessage(buddy.id, draft);
     setDraft('');
   };
 
   return (
-    <ScreenContainer scroll={false}>
-      <View style={styles.header}>
-        <Image source={{ uri: buddy.avatar }} style={styles.avatar} />
-        <View>
-          <Text style={typography.h3}>{buddy.name}</Text>
-          <Text style={styles.matchBadge}>🎫 Matched — wristbands confirmed</Text>
-        </View>
-      </View>
-
-      <FlatList
-        data={messages}
-        keyExtractor={(m) => m.id}
-        contentContainerStyle={{ paddingVertical: spacing.md }}
-        renderItem={({ item }) => (
-          <View style={[styles.bubble, item.fromSelf ? styles.bubbleSelf : styles.bubbleOther]}>
-            <Text style={styles.bubbleText}>{item.text}</Text>
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <ScreenContainer scroll={false}>
+        <View style={styles.header}>
+          <Image source={{ uri: buddy.avatar }} style={styles.avatar} />
+          <View>
+            <Text style={typography.h3}>{buddy.name}</Text>
+            <Text style={styles.matchBadge}>
+              {confirmed ? '🎫 Matched — wristbands confirmed' : 'Tap send to match wristbands'}
+            </Text>
           </View>
-        )}
-      />
+        </View>
 
-      <View style={styles.composer}>
-        <TextInput
-          style={styles.input}
-          placeholder="Send a message, photo, video, or link..."
-          placeholderTextColor={colors.textMuted}
-          value={draft}
-          onChangeText={setDraft}
+        <FlatList
+          style={{ flex: 1 }}
+          data={messages}
+          keyExtractor={(m) => m.id}
+          contentContainerStyle={{ paddingVertical: spacing.md }}
+          ListEmptyComponent={<Text style={typography.bodyMuted}>Say hi — an icebreaker starts the chat.</Text>}
+          renderItem={({ item }) => (
+            <View style={[styles.bubble, item.fromSelf ? styles.bubbleSelf : styles.bubbleOther]}>
+              <Text style={styles.bubbleText}>{item.text}</Text>
+            </View>
+          )}
         />
-        <Pressable style={styles.sendButton} onPress={send}>
-          <Text style={styles.sendButtonText}>Send</Text>
-        </Pressable>
-      </View>
-    </ScreenContainer>
+
+        <View style={styles.composer}>
+          <TextInput
+            style={styles.input}
+            placeholder="Send a message..."
+            placeholderTextColor={colors.textMuted}
+            value={draft}
+            onChangeText={setDraft}
+            onSubmitEditing={send}
+            returnKeyType="send"
+          />
+          <Pressable accessibilityRole="button" style={styles.sendButton} onPress={send}>
+            <Text style={styles.sendButtonText}>Send</Text>
+          </Pressable>
+        </View>
+      </ScreenContainer>
+    </KeyboardAvoidingView>
   );
 }
 
@@ -85,6 +92,7 @@ const styles = StyleSheet.create({
     borderRadius: radii.pill,
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
+    cursor: 'pointer',
   },
   sendButtonText: { color: colors.background, fontWeight: '800' },
 });

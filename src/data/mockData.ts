@@ -103,3 +103,24 @@ export const upcomingShows: ShowEvent[] = [
   { id: 'e2', name: 'Coachella', date: '2027-04-09', venue: 'Empire Polo Club, Indio', attendingBuddies: ['Wren P.'] },
   { id: 'e3', name: "Ariana Grande — Eternal Sunshine Tour", date: '2026-11-14', venue: 'Madison Square Garden, NYC', attendingBuddies: ['Sage M.'] },
 ];
+
+export type Venue = {
+  id: string;
+  name: string;
+  kind: string;
+  distanceMiles: number;
+};
+
+export const venues: Venue[] = [
+  { id: 'v1', name: 'Madison Square Garden', kind: 'Arena', distanceMiles: 3.2 },
+  { id: 'v2', name: 'Barclays Center', kind: 'Arena', distanceMiles: 4.8 },
+  { id: 'v3', name: 'The Warehouse', kind: 'Event space', distanceMiles: 1.7 },
+  { id: 'v4', name: 'Forest Hills Stadium', kind: 'Stadium', distanceMiles: 7.4 },
+];
+
+export const photoOptions = [
+  'https://i.pravatar.cc/150?img=12',
+  'https://i.pravatar.cc/150?img=23',
+  'https://i.pravatar.cc/150?img=33',
+  'https://i.pravatar.cc/150?img=45',
+];
