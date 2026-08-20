@@ -96,12 +96,16 @@ export type ShowEvent = {
   date: string;
   venue: string;
   attendingBuddies: string[];
+  image: string;
 };
 
 export const upcomingShows: ShowEvent[] = [
-  { id: 'e1', name: 'Ultra Music Festival', date: '2027-03-26', venue: 'Bayfront Park, Miami', attendingBuddies: ['Nova R.'] },
-  { id: 'e2', name: 'Coachella', date: '2027-04-09', venue: 'Empire Polo Club, Indio', attendingBuddies: ['Wren P.'] },
-  { id: 'e3', name: "Ariana Grande — Eternal Sunshine Tour", date: '2026-11-14', venue: 'Madison Square Garden, NYC', attendingBuddies: ['Sage M.'] },
+  { id: 'e1', name: 'Ultra Music Festival', date: '2027-03-26', venue: 'Bayfront Park, Miami', attendingBuddies: ['Nova R.'], image: 'ultra' },
+  { id: 'e2', name: 'Coachella', date: '2027-04-09', venue: 'Empire Polo Club, Indio', attendingBuddies: ['Wren P.'], image: 'coachella' },
+  { id: 'e3', name: 'Ariana Grande — Eternal Sunshine Tour', date: '2026-11-14', venue: 'Madison Square Garden, NYC', attendingBuddies: ['Sage M.'], image: 'arena' },
+  { id: 'e4', name: 'Burning Man', date: '2026-08-30', venue: 'Black Rock Desert, NV', attendingBuddies: ['Jax T.'], image: 'burningman' },
+  { id: 'e5', name: 'Lollapalooza', date: '2026-07-31', venue: 'Grant Park, Chicago', attendingBuddies: ['Nova R.', 'Sage M.'], image: 'stadium' },
+  { id: 'e6', name: 'South by Southwest', date: '2026-03-13', venue: 'Austin, TX', attendingBuddies: ['Jax T.'], image: 'warehouse' },
 ];
 
 export type Venue = {
@@ -109,11 +113,23 @@ export type Venue = {
   name: string;
   kind: string;
   distanceMiles: number;
+  image: string;
 };
 
 export const venues: Venue[] = [
-  { id: 'v1', name: 'Madison Square Garden', kind: 'Arena', distanceMiles: 3.2 },
-  { id: 'v2', name: 'Barclays Center', kind: 'Arena', distanceMiles: 4.8 },
-  { id: 'v3', name: 'The Warehouse', kind: 'Event space', distanceMiles: 1.7 },
-  { id: 'v4', name: 'Forest Hills Stadium', kind: 'Stadium', distanceMiles: 7.4 },
+  { id: 'v1', name: 'Madison Square Garden', kind: 'Arena', distanceMiles: 3.2, image: 'arena' },
+  { id: 'v2', name: 'Barclays Center', kind: 'Arena', distanceMiles: 4.8, image: 'arena' },
+  { id: 'v3', name: 'The Warehouse', kind: 'Event space', distanceMiles: 1.7, image: 'warehouse' },
+  { id: 'v4', name: 'Forest Hills Stadium', kind: 'Stadium', distanceMiles: 7.4, image: 'stadium' },
 ];
+
+export function showImageForName(name: string): string {
+  const found = upcomingShows.find((show) => name.toLowerCase().includes(show.name.split('—')[0].trim().toLowerCase()) || show.name.toLowerCase().includes(name.toLowerCase()));
+  if (found) return found.image;
+  if (/burn/i.test(name)) return 'burningman';
+  if (/coach/i.test(name)) return 'coachella';
+  if (/ultra/i.test(name)) return 'ultra';
+  if (/arena|garden|grande|bunny|tyler/i.test(name)) return 'arena';
+  if (/warehouse|sxsw|south by/i.test(name)) return 'warehouse';
+  return 'stadium';
+}

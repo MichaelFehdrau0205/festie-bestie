@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, Pressable } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Pressable, Image } from 'react-native';
 import { CompositeScreenProps } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
@@ -7,7 +7,8 @@ import ScreenContainer from '../components/ScreenContainer';
 import Chip from '../components/Chip';
 import Avatar from '../components/Avatar';
 import { colors, radii, spacing, typography } from '../theme/theme';
-import { buddies, venues } from '../data/mockData';
+import { buddies, upcomingShows, venues } from '../data/mockData';
+import { resolveFestival } from '../data/festivalImages';
 import { MainTabParamList, RootStackParamList } from '../navigation/types';
 import { useAppState } from '../state/AppState';
 
@@ -57,13 +58,29 @@ export default function MapScreen({ navigation }: Props) {
         ))}
         {venues.slice(0, 3).map((venue, index) => (
           <View key={venue.id} style={[styles.venuePin, venuePosition(index)]}>
-            <Text style={styles.pinEmoji}>🏟️</Text>
+            <Image source={resolveFestival(venue.image)} style={styles.venueThumb} />
             <Text style={styles.pinLabel}>{venue.name.split(' ')[0]}</Text>
           </View>
         ))}
       </View>
 
-      <Text style={[typography.h3, { marginTop: spacing.lg, marginBottom: spacing.sm }]}>
+      <Text style={[typography.h3, { marginTop: spacing.lg, marginBottom: spacing.sm }]}>Festivals & shows</Text>
+      <FlatList
+        horizontal
+        data={upcomingShows}
+        keyExtractor={(show) => show.id}
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ gap: spacing.sm, paddingBottom: spacing.md }}
+        renderItem={({ item }) => (
+          <View style={styles.showCard}>
+            <Image source={resolveFestival(item.image)} style={styles.showCover} resizeMode="cover" />
+            <Text style={styles.showName} numberOfLines={1}>{item.name}</Text>
+            <Text style={styles.showMeta} numberOfLines={1}>{item.venue}</Text>
+          </View>
+        )}
+      />
+
+      <Text style={[typography.h3, { marginTop: spacing.sm, marginBottom: spacing.sm }]}>
         {activeFilter === 'All' ? 'Closest to you' : activeFilter}
       </Text>
       <FlatList
@@ -121,8 +138,12 @@ const styles = StyleSheet.create({
   },
   pin: { position: 'absolute', alignItems: 'center', cursor: 'pointer' },
   venuePin: { position: 'absolute', alignItems: 'center' },
-  pinEmoji: { fontSize: 18 },
+  venueThumb: { width: 36, height: 36, borderRadius: 8, backgroundColor: colors.surfaceAlt },
   pinLabel: { color: colors.text, fontSize: 11, fontWeight: '700', marginTop: 2 },
+  showCard: { width: 180, backgroundColor: colors.surface, borderRadius: radii.md, overflow: 'hidden', borderWidth: 1, borderColor: colors.border },
+  showCover: { width: 180, height: 100, backgroundColor: colors.surfaceAlt },
+  showName: { color: colors.text, fontWeight: '700', fontSize: 13, paddingHorizontal: spacing.sm, paddingTop: spacing.sm },
+  showMeta: { color: colors.textMuted, fontSize: 12, paddingHorizontal: spacing.sm, paddingBottom: spacing.sm },
   list: { flex: 1 },
   row: {
     flexDirection: 'row',

@@ -4,9 +4,10 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { CompositeScreenProps } from '@react-navigation/native';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import ScreenContainer from '../components/ScreenContainer';
-import Avatar, { resolveAvatar } from '../components/Avatar';
+import Avatar from '../components/Avatar';
 import { colors, radii, spacing, typography } from '../theme/theme';
-import { buddies } from '../data/mockData';
+import { buddies, showImageForName } from '../data/mockData';
+import { resolveFestival } from '../data/festivalImages';
 import { MainTabParamList, RootStackParamList } from '../navigation/types';
 import { matchScore, useAppState } from '../state/AppState';
 
@@ -43,7 +44,7 @@ export default function MatchScreen({ navigation }: Props) {
           const score = matchScore(item.genres, item.vibe, profile);
           return (
             <View style={styles.card}>
-              <Image source={resolveAvatar(item.avatar)} style={styles.cover} resizeMode="cover" />
+              <Image source={resolveFestival(showImageForName(item.upcomingShows[0] ?? ''))} style={styles.cover} resizeMode="cover" />
               <View style={styles.body}>
                 <Avatar imageKey={item.avatar} size={56} />
                 <View style={{ flex: 1 }}>

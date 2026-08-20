@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, Pressable } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Pressable, Image } from 'react-native';
 import ScreenContainer from '../components/ScreenContainer';
 import Chip from '../components/Chip';
 import { colors, radii, spacing, typography } from '../theme/theme';
 import { buddies, upcomingShows } from '../data/mockData';
+import { resolveFestival } from '../data/festivalImages';
 import { useAppState } from '../state/AppState';
 import Avatar from '../components/Avatar';
 
@@ -33,6 +34,8 @@ export default function SetMeetupScreen() {
           const status = meetups[item.id];
           return (
             <View style={styles.card}>
+              <Image source={resolveFestival(item.image)} style={styles.cover} resizeMode="cover" />
+              <View style={styles.cardBody}>
               <Text style={typography.h3}>{item.name}</Text>
               <Text style={typography.bodyMuted}>{item.venue}</Text>
               <Text style={typography.bodyMuted}>{item.date}</Text>
@@ -85,6 +88,7 @@ export default function SetMeetupScreen() {
               {matchedIds.length === 0 && (
                 <Text style={styles.hint}>Match someone first so you have a buddy to meet.</Text>
               )}
+              </View>
             </View>
           );
         }}
@@ -105,11 +109,13 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.surface,
     borderRadius: radii.md,
-    padding: spacing.md,
     marginBottom: spacing.md,
     borderWidth: 1,
     borderColor: colors.border,
+    overflow: 'hidden',
   },
+  cover: { width: '100%', height: 140, backgroundColor: colors.surfaceAlt },
+  cardBody: { padding: spacing.md },
   buddyText: { color: colors.primary, fontSize: 13, fontWeight: '600' },
   attending: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md, marginTop: spacing.sm },
   attendingPerson: { alignItems: 'center', gap: 4 },
