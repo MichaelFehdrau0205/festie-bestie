@@ -1,7 +1,8 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TextInput, Pressable, Image, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TextInput, Pressable, KeyboardAvoidingView, Platform } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import ScreenContainer from '../components/ScreenContainer';
+import Avatar from '../components/Avatar';
 import { colors, radii, spacing, typography } from '../theme/theme';
 import { buddies } from '../data/mockData';
 import { RootStackParamList } from '../navigation/types';
@@ -27,7 +28,7 @@ export default function ChatScreen({ route }: Props) {
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScreenContainer scroll={false}>
         <View style={styles.header}>
-          <Image source={{ uri: buddy.avatar }} style={styles.avatar} />
+          <Avatar imageKey={buddy.avatar} size={48} />
           <View>
             <Text style={typography.h3}>{buddy.name}</Text>
             <Text style={styles.matchBadge}>
@@ -69,8 +70,7 @@ export default function ChatScreen({ route }: Props) {
 }
 
 const styles = StyleSheet.create({
-  header: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.sm },
-  avatar: { width: 44, height: 44, borderRadius: radii.pill, marginRight: spacing.md },
+  header: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.sm, gap: spacing.md },
   matchBadge: { color: colors.primary, fontSize: 12, fontWeight: '700', marginTop: 2 },
   bubble: { maxWidth: '80%', padding: spacing.sm, borderRadius: radii.md, marginBottom: spacing.sm },
   bubbleOther: { backgroundColor: colors.surface, alignSelf: 'flex-start' },

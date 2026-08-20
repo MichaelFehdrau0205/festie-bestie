@@ -1,10 +1,10 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, TextInput, Pressable, StyleSheet, Switch, Image } from 'react-native';
+import { View, Text, TextInput, Pressable, StyleSheet, Switch } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import ScreenContainer from '../components/ScreenContainer';
 import PrimaryButton from '../components/PrimaryButton';
+import Avatar, { photoOptionKeys } from '../components/Avatar';
 import { colors, radii, spacing, typography } from '../theme/theme';
-import { photoOptions } from '../data/mockData';
 import { RootStackParamList } from '../navigation/types';
 import { useAppState } from '../state/AppState';
 
@@ -22,7 +22,7 @@ export default function ProfileBuilderScreen({ navigation }: Props) {
   const [socialHandle, setSocialHandle] = useState(profile?.socialHandle ?? '');
   const [spotifyConnected, setSpotifyConnected] = useState(profile?.spotifyConnected ?? false);
   const [shows, setShows] = useState(profile?.shows ?? (profile?.artistsEvents ?? []).join(', '));
-  const [photoUri, setPhotoUri] = useState(profile?.photoUri ?? '');
+  const [photoUri, setPhotoUri] = useState(profile?.photoUri || photoOptionKeys[0]);
   const [error, setError] = useState('');
 
   const ageNumber = Number(age);
@@ -97,18 +97,18 @@ export default function ProfileBuilderScreen({ navigation }: Props) {
 
       <Text style={typography.label}>PHOTOS (TAP TO CHOOSE)</Text>
       <View style={styles.photoRow}>
-        {photoOptions.map((uri) => (
+        {photoOptionKeys.map((key) => (
           <Pressable
-            key={uri}
+            key={key}
             accessibilityRole="button"
-            onPress={() => setPhotoUri(uri)}
-            style={[styles.photoChoice, photoUri === uri && styles.photoChoiceSelected]}
+            onPress={() => setPhotoUri(key)}
+            style={[styles.photoChoice, photoUri === key && styles.photoChoiceSelected]}
           >
-            <Image source={{ uri }} style={styles.photo} />
+            <Avatar imageKey={key} size={72} />
           </Pressable>
         ))}
       </View>
-      {photoUri ? <Text style={styles.toggleHint}>Photo selected ✓</Text> : <Text style={styles.toggleHint}>Pick at least one photo.</Text>}
+      <Text style={styles.toggleHint}>Photo selected ✓</Text>
 
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
@@ -168,6 +168,5 @@ const styles = StyleSheet.create({
     cursor: 'pointer',
   },
   photoChoiceSelected: { borderColor: colors.primary },
-  photo: { width: 64, height: 64, borderRadius: radii.pill },
   error: { color: colors.danger, marginTop: spacing.sm, fontWeight: '700' },
 });

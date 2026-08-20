@@ -1,10 +1,11 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, StyleSheet, Image, FlatList, Pressable } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Pressable } from 'react-native';
 import { CompositeScreenProps } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import ScreenContainer from '../components/ScreenContainer';
 import Chip from '../components/Chip';
+import Avatar from '../components/Avatar';
 import { colors, radii, spacing, typography } from '../theme/theme';
 import { buddies } from '../data/mockData';
 import { MainTabParamList, RootStackParamList } from '../navigation/types';
@@ -52,7 +53,9 @@ export default function BuddiesScreen({ navigation }: Props) {
             style={styles.card}
             onPress={() => navigation.navigate('Chat', { buddyId: item.id })}
           >
-            <Image source={{ uri: item.avatar }} style={styles.avatar} />
+            <View style={{ marginBottom: spacing.sm }}>
+              <Avatar imageKey={item.avatar} size={88} rounded={16} />
+            </View>
             <Text style={typography.h3}>{item.name}</Text>
             <Text style={typography.bodyMuted}>{item.genres.join(', ')}</Text>
             <Text style={styles.distance}>{item.distanceMiles} mi away</Text>
@@ -74,7 +77,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
     cursor: 'pointer',
+    overflow: 'hidden',
   },
-  avatar: { width: 64, height: 64, borderRadius: radii.pill, marginBottom: spacing.sm },
   distance: { color: colors.primary, fontSize: 12, fontWeight: '700', marginTop: spacing.xs },
 });

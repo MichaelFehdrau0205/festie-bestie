@@ -3,8 +3,9 @@ import { View, Text, StyleSheet, FlatList, Pressable } from 'react-native';
 import ScreenContainer from '../components/ScreenContainer';
 import Chip from '../components/Chip';
 import { colors, radii, spacing, typography } from '../theme/theme';
-import { upcomingShows } from '../data/mockData';
+import { buddies, upcomingShows } from '../data/mockData';
 import { useAppState } from '../state/AppState';
+import Avatar from '../components/Avatar';
 
 const DATE_OPTIONS = ['Sat 6pm', 'Sun 2pm', 'Fri 7pm', 'Tonight'];
 
@@ -36,7 +37,17 @@ export default function SetMeetupScreen() {
               <Text style={typography.bodyMuted}>{item.venue}</Text>
               <Text style={typography.bodyMuted}>{item.date}</Text>
               {item.attendingBuddies.length > 0 && (
-                <Text style={styles.buddyText}>With {item.attendingBuddies.join(', ')}</Text>
+                <View style={styles.attending}>
+                  {item.attendingBuddies.map((name) => {
+                    const buddy = buddies.find((b) => b.name === name);
+                    return (
+                      <View key={name} style={styles.attendingPerson}>
+                        <Avatar imageKey={buddy?.avatar} size={36} />
+                        <Text style={styles.buddyText}>{name}</Text>
+                      </View>
+                    );
+                  })}
+                </View>
               )}
 
               <Text style={[typography.label, { marginTop: spacing.md }]}>FIRST MEET TIME</Text>
@@ -99,7 +110,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
-  buddyText: { color: colors.primary, marginTop: spacing.xs, fontSize: 13, fontWeight: '600' },
+  buddyText: { color: colors.primary, fontSize: 13, fontWeight: '600' },
+  attending: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md, marginTop: spacing.sm },
+  attendingPerson: { alignItems: 'center', gap: 4 },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', marginTop: spacing.xs },
   actions: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, marginTop: spacing.sm },
   confirmButton: {

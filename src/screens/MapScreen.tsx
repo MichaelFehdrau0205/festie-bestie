@@ -1,10 +1,11 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, StyleSheet, Image, FlatList, Pressable } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Pressable } from 'react-native';
 import { CompositeScreenProps } from '@react-navigation/native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import ScreenContainer from '../components/ScreenContainer';
 import Chip from '../components/Chip';
+import Avatar from '../components/Avatar';
 import { colors, radii, spacing, typography } from '../theme/theme';
 import { buddies, venues } from '../data/mockData';
 import { MainTabParamList, RootStackParamList } from '../navigation/types';
@@ -50,7 +51,7 @@ export default function MapScreen({ navigation }: Props) {
             onPress={() => navigation.navigate('Chat', { buddyId: person.id })}
             style={[styles.pin, pinPosition(index)]}
           >
-            <Text style={styles.pinEmoji}>📍</Text>
+            <Avatar imageKey={person.avatar} size={36} />
             <Text style={styles.pinLabel}>{person.name.split(' ')[0]}</Text>
           </Pressable>
         ))}
@@ -76,7 +77,7 @@ export default function MapScreen({ navigation }: Props) {
             style={styles.row}
             onPress={() => navigation.navigate('Chat', { buddyId: item.id })}
           >
-            <Image source={{ uri: item.avatar }} style={styles.avatar} />
+            <Avatar imageKey={item.avatar} size={48} />
             <View style={{ flex: 1 }}>
               <Text style={typography.h3}>{item.name}</Text>
               <Text style={typography.bodyMuted}>{item.upcomingShows[0] ?? item.vibe.join(' · ')}</Text>
@@ -121,7 +122,7 @@ const styles = StyleSheet.create({
   pin: { position: 'absolute', alignItems: 'center', cursor: 'pointer' },
   venuePin: { position: 'absolute', alignItems: 'center' },
   pinEmoji: { fontSize: 18 },
-  pinLabel: { color: colors.text, fontSize: 11, fontWeight: '700' },
+  pinLabel: { color: colors.text, fontSize: 11, fontWeight: '700', marginTop: 2 },
   list: { flex: 1 },
   row: {
     flexDirection: 'row',
@@ -130,7 +131,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
     cursor: 'pointer',
+    gap: spacing.md,
   },
-  avatar: { width: 44, height: 44, borderRadius: radii.pill, marginRight: spacing.md },
   distance: { color: colors.primary, fontWeight: '700', marginRight: spacing.sm },
 });

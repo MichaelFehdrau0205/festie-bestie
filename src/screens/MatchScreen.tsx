@@ -1,9 +1,10 @@
 import React, { useMemo } from 'react';
-import { View, Text, StyleSheet, Image, FlatList, Pressable } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Pressable, Image } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { CompositeScreenProps } from '@react-navigation/native';
 import { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
 import ScreenContainer from '../components/ScreenContainer';
+import Avatar, { resolveAvatar } from '../components/Avatar';
 import { colors, radii, spacing, typography } from '../theme/theme';
 import { buddies } from '../data/mockData';
 import { MainTabParamList, RootStackParamList } from '../navigation/types';
@@ -42,8 +43,10 @@ export default function MatchScreen({ navigation }: Props) {
           const score = matchScore(item.genres, item.vibe, profile);
           return (
             <View style={styles.card}>
-              <Image source={{ uri: item.avatar }} style={styles.avatar} />
-              <View style={{ flex: 1 }}>
+              <Image source={resolveAvatar(item.avatar)} style={styles.cover} resizeMode="cover" />
+              <View style={styles.body}>
+                <Avatar imageKey={item.avatar} size={56} />
+                <View style={{ flex: 1 }}>
                 <View style={styles.nameRow}>
                   <Text style={typography.h3}>{item.name}, {item.age}</Text>
                   {item.spotifyConnected && <Text style={styles.spotifyBadge}>♫ Spotify</Text>}
@@ -76,6 +79,7 @@ export default function MatchScreen({ navigation }: Props) {
                 </View>
               </View>
             </View>
+            </View>
           );
         }}
       />
@@ -85,15 +89,15 @@ export default function MatchScreen({ navigation }: Props) {
 
 const styles = StyleSheet.create({
   card: {
-    flexDirection: 'row',
     backgroundColor: colors.surface,
     borderRadius: radii.md,
-    padding: spacing.md,
     marginBottom: spacing.md,
     borderWidth: 1,
     borderColor: colors.border,
+    overflow: 'hidden',
   },
-  avatar: { width: 56, height: 56, borderRadius: radii.pill, marginRight: spacing.md },
+  cover: { width: '100%', height: 180, backgroundColor: colors.surfaceAlt },
+  body: { flexDirection: 'row', padding: spacing.md, gap: spacing.md },
   nameRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   spotifyBadge: { color: colors.primary, fontSize: 12, fontWeight: '700' },
   score: { color: colors.primary, fontWeight: '700', marginVertical: 4 },

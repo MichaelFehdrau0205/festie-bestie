@@ -22,7 +22,7 @@ export const buddies: Buddy[] = [
     vibe: ['neon', 'raver'],
     genres: ['Electronic', 'Pop'],
     bio: 'Here for the bass drops and the friends who scream the drop with me.',
-    avatar: 'https://i.pravatar.cc/150?img=32',
+    avatar: 'nova',
     spotifyConnected: true,
     upcomingShows: ['Ultra Music Festival'],
   },
@@ -34,7 +34,7 @@ export const buddies: Buddy[] = [
     vibe: ['rock n roll', 'vintage'],
     genres: ['Rock', 'Indie'],
     bio: 'Front row or nothing. Always down to caravan to a show.',
-    avatar: 'https://i.pravatar.cc/150?img=15',
+    avatar: 'jax',
     spotifyConnected: true,
     upcomingShows: ['Burning Man'],
   },
@@ -46,7 +46,7 @@ export const buddies: Buddy[] = [
     vibe: ['y2k', 'hyperpop'],
     genres: ['Pop', 'Hyperpop'],
     bio: 'Glitter, glow sticks, and good vibes only.',
-    avatar: 'https://i.pravatar.cc/150?img=47',
+    avatar: 'sage',
     spotifyConnected: false,
     upcomingShows: ['Ariana Grande — Eternal Sunshine Tour'],
   },
@@ -58,7 +58,7 @@ export const buddies: Buddy[] = [
     vibe: ['goth', 'moody'],
     genres: ['Alt', 'Electronic'],
     bio: 'Looking for my concert bestie for this festival season.',
-    avatar: 'https://i.pravatar.cc/150?img=5',
+    avatar: 'wren',
     spotifyConnected: true,
     upcomingShows: ['Coachella'],
   },
@@ -116,11 +116,4 @@ export const venues: Venue[] = [
   { id: 'v2', name: 'Barclays Center', kind: 'Arena', distanceMiles: 4.8 },
   { id: 'v3', name: 'The Warehouse', kind: 'Event space', distanceMiles: 1.7 },
   { id: 'v4', name: 'Forest Hills Stadium', kind: 'Stadium', distanceMiles: 7.4 },
-];
-
-export const photoOptions = [
-  'https://i.pravatar.cc/150?img=12',
-  'https://i.pravatar.cc/150?img=23',
-  'https://i.pravatar.cc/150?img=33',
-  'https://i.pravatar.cc/150?img=45',
 ];
