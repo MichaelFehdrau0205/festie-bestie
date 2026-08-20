@@ -45,6 +45,7 @@ type AppStateValue = PersistedState & {
   confirmMatch: (id: string) => void;
   sendMessage: (buddyId: string, text: string) => void;
   setMeetup: (eventId: string, patch: Partial<MeetupStatus>) => void;
+  reset: () => void;
 };
 
 const emptyState: PersistedState = {
@@ -196,6 +197,11 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
     }));
   }, []);
 
+  const reset = useCallback(() => {
+    setState(emptyState);
+    AsyncStorage.removeItem(STORAGE_KEY).catch(() => {});
+  }, []);
+
   const value = useMemo<AppStateValue>(
     () => ({
       ...state,
@@ -207,8 +213,9 @@ export function AppStateProvider({ children }: { children: React.ReactNode }) {
       confirmMatch,
       sendMessage,
       setMeetup,
+      reset,
     }),
-    [state, ready, setOnboarding, saveProfile, likeBuddy, passBuddy, confirmMatch, sendMessage, setMeetup]
+    [state, ready, setOnboarding, saveProfile, likeBuddy, passBuddy, confirmMatch, sendMessage, setMeetup, reset]
   );
 
   return <AppStateContext.Provider value={value}>{children}</AppStateContext.Provider>;

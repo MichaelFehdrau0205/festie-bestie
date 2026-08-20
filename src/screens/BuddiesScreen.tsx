@@ -19,7 +19,7 @@ type Props = CompositeScreenProps<
 >;
 
 export default function BuddiesScreen({ navigation }: Props) {
-  const { matchedIds } = useAppState();
+  const { matchedIds, reset } = useAppState();
   const [sortMode, setSortMode] = useState<SortMode>('proximity');
 
   const collection = useMemo(() => {
@@ -32,6 +32,15 @@ export default function BuddiesScreen({ navigation }: Props) {
   return (
     <ScreenContainer scroll={false}>
       <Text style={typography.h1}>Your buddies</Text>
+      <Pressable
+        accessibilityRole="button"
+        onPress={() => {
+          reset();
+          navigation.getParent()?.reset({ index: 0, routes: [{ name: 'Onboarding' }] });
+        }}
+      >
+        <Text style={styles.startOver}>← Start over (first page)</Text>
+      </Pressable>
       <View style={styles.chipRow}>
         <Chip label="Sort: Proximity" selected={sortMode === 'proximity'} onPress={() => setSortMode('proximity')} />
         <Chip label="Sort: Music preference" selected={sortMode === 'genre'} onPress={() => setSortMode('genre')} />
@@ -68,6 +77,7 @@ export default function BuddiesScreen({ navigation }: Props) {
 
 const styles = StyleSheet.create({
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', marginTop: spacing.sm },
+  startOver: { color: colors.primary, fontWeight: '700', marginTop: spacing.xs, marginBottom: spacing.sm },
   card: {
     flex: 1,
     backgroundColor: colors.surface,

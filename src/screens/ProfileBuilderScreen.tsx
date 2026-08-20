@@ -61,6 +61,9 @@ export default function ProfileBuilderScreen({ navigation }: Props) {
 
   return (
     <ScreenContainer>
+      <Pressable accessibilityRole="button" onPress={() => navigation.replace('Onboarding')}>
+        <Text style={styles.backLink}>← Back to first page</Text>
+      </Pressable>
       <Text style={typography.h1}>Build your profile</Text>
       <Text style={[typography.bodyMuted, { marginTop: spacing.xs, marginBottom: spacing.lg }]}>
         This is what buddies will see. Keep it real — or make up a name, your call.
@@ -169,4 +172,5 @@ const styles = StyleSheet.create({
   },
   photoChoiceSelected: { borderColor: colors.primary },
   error: { color: colors.danger, marginTop: spacing.sm, fontWeight: '700' },
+  backLink: { color: colors.primary, fontWeight: '700', marginBottom: spacing.md },
 });

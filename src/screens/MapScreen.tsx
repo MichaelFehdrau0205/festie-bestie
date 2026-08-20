@@ -20,7 +20,7 @@ type Props = CompositeScreenProps<
 const FILTERS = ['All', 'This week', 'Shows near me', 'My matches'] as const;
 
 export default function MapScreen({ navigation }: Props) {
-  const { matchedIds } = useAppState();
+  const { matchedIds, reset } = useAppState();
   const [activeFilter, setActiveFilter] = useState<(typeof FILTERS)[number]>('All');
 
   const people = useMemo(() => {
@@ -34,6 +34,15 @@ export default function MapScreen({ navigation }: Props) {
   return (
     <ScreenContainer scroll={false}>
       <Text style={typography.h1}>Nearby</Text>
+      <Pressable
+        accessibilityRole="button"
+        onPress={() => {
+          reset();
+          navigation.getParent()?.reset({ index: 0, routes: [{ name: 'Onboarding' }] });
+        }}
+      >
+        <Text style={styles.startOver}>← Start over (first page)</Text>
+      </Pressable>
       <Text style={[typography.bodyMuted, { marginTop: spacing.xs, marginBottom: spacing.md }]}>
         Tap a pin or a person to open their match card.
       </Text>
@@ -128,6 +137,7 @@ function venuePosition(index: number) {
 
 const styles = StyleSheet.create({
   chipRow: { flexDirection: 'row', flexWrap: 'wrap' },
+  startOver: { color: colors.primary, fontWeight: '700', marginBottom: spacing.sm },
   map: {
     height: 180,
     borderRadius: radii.lg,
